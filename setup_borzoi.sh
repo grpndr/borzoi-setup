@@ -95,11 +95,17 @@ cd ..
 
 echo "Running Borzoi inference test..." #TODO
 
-if [ -f "test_borzoi_inference.py" ]; then
-    python test_borzoi_inference.py
+if [ -f "borzoi_inference.py" ]; then
+    python borzoi_inference.py --snp-vcf-file="borzoi/tutorials/legacy/score_variants/snps_expr.vcf"\
+                            --output-file="snp_expr_predictions.tsv"\
+                            --model-file="borzoi/examples/hg38/saved_models/f3c0/train/model0_best.h5"\
+                            --model-parameters-file="borzoi/examples/params_pred.json"\
+                            --targets-file="borzoi/examples/targets_gtex.txt"\
+                            --hg38-fasta="borzoi/examples/hg38/assembly/ucsc/hg38.fa"\
+                            --column-suffix="f3c0_model0"
 
 else
-    echo "Error: test_borzoi_inference.py not found in $(pwd)."
+    echo "Error: borzoi_inference.py not found in $(pwd)."
     exit 1
 fi
 

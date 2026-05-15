@@ -10,7 +10,6 @@ set -euo pipefail
 
 ENV_NAME="borzoi"
 BASE_DIR="borzoi"
-
 # conda environment YAML file
 ENV_YML="environment.yml"
 

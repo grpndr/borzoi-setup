@@ -74,7 +74,7 @@ done
 echo "Exporting repository paths with export_vars.sh" #TODO
 
 if [ -f "export_vars.sh" ]; then
-    source ./export_vars.sh
+    source ./export_vars.sh ${BASE_DIR}
 else
     echo "Error: export_vars.sh not found in $(pwd)."
     exit 1

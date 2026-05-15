@@ -37,6 +37,8 @@ else
     echo "westminster already exists; skipping."
 fi
 
+cd ..
+
 echo "Creating conda environment from ${ENV_YML}" #TODO
 
 if ! command -v conda >/dev/null 2>&1; then
@@ -54,7 +56,7 @@ CONDA_BASE="$(conda info --base)"
 source "${CONDA_BASE}/etc/profile.d/conda.sh"
 
 if conda env list | awk '{print $1}' | grep -qx "${ENV_NAME}"; then
-    echo "Conda environment '${ENV_NAME}' already exists; skipping creation."
+    echo "Conda environment '${ENV_NAME}' already exists; skipping."
 else
     conda env create -n "${ENV_NAME}" -f "${ENV_YML}"
 fi
@@ -63,26 +65,38 @@ echo "Activating conda environment: ${ENV_NAME}"
 conda activate "${ENV_NAME}"
 
 echo "Installing repositories mode..."
-
+cd "${BASE_DIR}"
 for repo in baskerville borzoi westminster; do
-    echo "Installing ${repo}..."
-    cd "${repo}"
-    pip install -e .
-    cd ..
+    # check if they are already installed in the current environment
+    if python -c "import ${repo}" &> /dev/null; then
+        echo "${repo} is already installed in the current conda environment; skipping."
+        ALREADY_INSTALLED=true
+    else
+        echo "Installing ${repo}..."
+        cd "${repo}"
+        pip install -e .
+        cd ..
+    fi
 done
 
-echo "Exporting repository paths with export_vars.sh" #TODO
+cd ..
 
-if [ -f "export_vars.sh" ]; then
-    source ./export_vars.sh ${BASE_DIR}
+if [ "${ALREADY_INSTALLED:-false}" = true ]; then
+    echo "Baskerville, Borzoi, and Westminster were already installed in the current conda environment; skipping running env_vars.sh"
 else
-    echo "Error: export_vars.sh not found in $(pwd)."
-    exit 1
+    echo "Exporting repository paths with export_vars.sh" 
+    if [ -f "export_vars.sh" ]; then
+        source ./export_vars.sh ${BASE_DIR}
+    else
+        echo "Error: export_vars.sh not found in $(pwd)."
+        exit 1
+    fi
 fi
 
-echo "Downloading Borzoi example pre-trained models..." #TODO
 
-cd borzoi
+echo "Downloading Borzoi example pre-trained models..." 
+
+cd ${BASE_DIR}/borzoi
 
 if [ -f "download_models.sh" ]; then
     bash ./download_models.sh
@@ -92,16 +106,17 @@ else
 fi
 
 cd ..
+cd ..
 
-echo "Running Borzoi inference test..." #TODO
+echo "Running Borzoi inference test..." 
 
 if [ -f "borzoi_inference.py" ]; then
-    python borzoi_inference.py --snp-vcf-file="borzoi/tutorials/legacy/score_variants/snps_expr.vcf"\
-                            --output-file="snp_expr_predictions.tsv"\
-                            --model-file="borzoi/examples/hg38/saved_models/f3c0/train/model0_best.h5"\
-                            --model-parameters-file="borzoi/examples/params_pred.json"\
-                            --targets-file="borzoi/examples/targets_gtex.txt"\
-                            --hg38-fasta="borzoi/examples/hg38/assembly/ucsc/hg38.fa"\
+    python borzoi_inference.py --snp-vcf-file="snps_dummy.vcf" \
+                            --output-file="snp_dummy_predictions.tsv" \
+                            --model-file="${BASE_DIR}/borzoi/examples/saved_models/f3c0/train/model0_best.h5" \
+                            --model-parameters="${BASE_DIR}/borzoi/examples/params_pred.json" \
+                            --targets-file="${BASE_DIR}/borzoi/examples/targets_gtex.txt" \
+                            --hg38-fasta="${BASE_DIR}/borzoi/examples/hg38/assembly/ucsc/hg38.fa" \
                             --column-suffix="f3c0_model0"
 
 else

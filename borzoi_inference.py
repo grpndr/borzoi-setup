@@ -112,7 +112,6 @@ def fetch_sequence_from_fasta(
     start_1based: int,
     end_1based: int,
     ) -> str:
-    chromosome = normalise_chromosome(chromosome, False)
     with pysam.FastaFile(fasta_path) as fasta:
         references = set(fasta.references)
         if chromosome not in references:
@@ -165,7 +164,7 @@ def create_borzoi_input(
 ) -> Tuple[np.ndarray, np.ndarray]:
     
     # handle chromosome input
-    chromosome = normalise_chromosome(chromosome)
+    chromosome = normalise_chromosome(chromosome, chr=True)
 
     # make ref and alt_alleles upper case
     ref_allele, alt_allele = ref_allele.upper(), alt_allele.upper()

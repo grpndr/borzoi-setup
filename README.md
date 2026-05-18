@@ -44,7 +44,7 @@ This will:
 
 The output file is a tab-separated table containing the original SNP data plus one or more `L2NORM_<target>_<suffix>` columns for each scored target.
 
-## Legal stuff
+## Legal stuff?
 
 - The three repos cloned by the setup script are https://github.com/calico/baskerville, https://github.com/calico/borzoi and https://github.com/calico/westminster. Please cite them instead of this repo if you use this code. 
 

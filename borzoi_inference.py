@@ -210,7 +210,7 @@ def create_borzoi_input(
     return ref_array, alt_array
 
 
-def main(snp_vcf_file, output_file, model_file:str, model_parameters:str, targets_file:str, hg38_fasta:str, column_suffix:str = ""):
+def main(snp_vcf_file, output_file, model_file:str, model_parameters:str, targets_file:str, hg38_fasta:str, column_suffix:str = "", untransform_old: bool = False, unscale: bool = False, unclip: bool = True, statistic: str = "L2NORM"):
 
     # open the snp vcf file
     snps = pd.read_csv(snp_vcf_file)
@@ -237,12 +237,19 @@ def main(snp_vcf_file, output_file, model_file:str, model_parameters:str, target
     
         ref_preds_untransformed, alt_preds_untransformed = untransform_predictions(ref_preds=ref_preds[0],
                                                                                     alt_preds=alt_preds[0],
-                                                                                    model_targets_file=targets_file)
+                                                                                    model_targets_file=targets_file,
+                                                                                    untransform_old=untransform_old, 
+                                                                                    unscale=unscale, 
+                                                                                    unclip=unclip)
+        
         # for each SNP, there will be two vectors of size (1, sequence_length, num_targets) for the ref and alt predictions
-        Outputs.append([l2Norm(ref_preds_untransformed[:, i], alt_preds_untransformed[:, i]) for i in range(len(Target_identifiers))])
+        if statistic == "L2NORM":
+            Outputs.append([l2Norm(ref_preds_untransformed[:, i], alt_preds_untransformed[:, i]) for i in range(len(Target_identifiers))])
+        elif statistic == "SAD":
+            Outputs.append([SAD(ref_preds_untransformed[:, i], alt_preds_untransformed[:, i]) for i in range(len(Target_identifiers))])
         print(f"Finished processing {snp_row.CHROM}:{snp_row.POS} {snp_row.REF}>{snp_row.ALT}")
     # outputs will be a list opf lists, of shape (num_snps, num_targets), convert this to dataframe
-    Outputs_df = pd.DataFrame(Outputs, columns=[f"L2NORM_{ti}_{column_suffix}" for ti in Target_identifiers])
+    Outputs_df = pd.DataFrame(Outputs, columns=[f"{statistic}_{ti}_{column_suffix}" for ti in Target_identifiers])
     # add the outputs to the snps dataframe
     snps = pd.concat([snps, Outputs_df], axis=1)
     
@@ -259,6 +266,10 @@ if __name__ == "__main__":
     parser.add_argument("--targets-file", help="Path to the targets file")
     parser.add_argument("--hg38-fasta", help="Path to the HG38 fasta file")
     parser.add_argument("--column-suffix", help="Suffix for the column names")
+    parser.add_argument("--untransform-old", action="store_true", help="Whether to use the old untransformation method")
+    parser.add_argument("--unscale", action="store_true", help="Whether to unscale the predictions")
+    parser.add_argument("--unclip", action="store_true", help="Whether to unclip the predictions")
+    parser.add_argument("--statistic", choices=["L2NORM", "SAD"], default="L2NORM", help="Which statistic to calculate for the difference between ref and alt predictions")
     args = parser.parse_args()
 
     main(snp_vcf_file=args.snp_vcf_file,
@@ -267,4 +278,8 @@ if __name__ == "__main__":
          model_parameters=args.model_parameters,
          targets_file=args.targets_file,
          hg38_fasta=args.hg38_fasta,
-         column_suffix=args.column_suffix)
+         column_suffix=args.column_suffix,
+         untransform_old=args.untransform_old,
+         unscale=args.unscale,
+         unclip=args.unclip,
+         statistic=args.statistic)

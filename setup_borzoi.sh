@@ -117,7 +117,10 @@ if [ -f "borzoi_inference.py" ]; then
                             --model-parameters="${BASE_DIR}/borzoi/examples/params_pred.json" \
                             --targets-file="${BASE_DIR}/borzoi/examples/targets_gtex.txt" \
                             --hg38-fasta="${BASE_DIR}/borzoi/examples/hg38/assembly/ucsc/hg38.fa" \
-                            --column-suffix="f3c0_model0"
+                            --column-suffix="f3c0_model0" \
+                            --untransform-old \
+                            --unclip \
+                            --statistic "SAD"
 
 else
     echo "Error: borzoi_inference.py not found in $(pwd)."

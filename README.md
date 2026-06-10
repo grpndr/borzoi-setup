@@ -42,7 +42,7 @@ This will:
 
 ## Example output
 
-The output file is a tab-separated table containing the original SNP data plus one or more `L2NORM_<target>_<suffix>` columns for each scored target.
+The output file is a tab-separated table containing the original SNP data plus one or more `{statistic}_<target>_<suffix>` columns for each scored target.
 
 ## Legal stuff?
 

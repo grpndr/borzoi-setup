@@ -46,10 +46,10 @@ The output file is a tab-separated table containing the original SNP data plus o
 
 ## Legal stuff?
 
-- The three repos cloned by the setup script are https://github.com/calico/baskerville, https://github.com/calico/borzoi and https://github.com/calico/westminster. Please cite them instead of this repo if you use this code. 
+- The three repos cloned by the setup script are https://github.com/calico/baskerville, https://github.com/calico/borzoi and https://github.com/calico/westminster. Please cite them if you use this code. 
 
 - `Borzoi_inference.py` is a modified version of these scripts: https://github.com/calico/borzoi/blob/main/src/scripts/borzoi_sed.py; https://github.com/calico/borzoi/blob/main/src/scripts/borzoi_sad.py. 
 
 - `export_vars.sh` is a collated (and modified) from the scripts of the same name in the three repos.
 
-- Lastly, I work at Earlham Institute and funded by NextGen so all this code belongs to them I guess. I just hope this is useful code, anyone is free to claim whatever from it. 
+- Lastly, I work at Earlham Institute and funded by NextGen so all this code belongs to them I guess. I just hope this is useful code. 

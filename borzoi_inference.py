@@ -58,7 +58,6 @@ def load_borzoi(model_file: str,
     return borzoi_seqnn_model, parameter_seqlen
 
         
-# function to take the one hot encoded sequence, model parameters as input and return the ref and alt predictions (untransformed)
 def inference(sequence1hot_ref: np.array,
               sequence1hot_alt: np.array,
               borzoi_seqnn_model):
@@ -69,13 +68,20 @@ def inference(sequence1hot_ref: np.array,
     return ref_preds, alt_preds
 
 
-def untransform_predictions(ref_preds, alt_preds, model_targets_file):
+def untransform_predictions(ref_preds, alt_preds, model_targets_file, untransform_old=False, unscale=False, unclip=True):
     
     borzoi_model_targets = pd.read_csv(model_targets_file, sep="\t", index_col=0)
-    ref_preds = dataset.untransform_preds(ref_preds, borzoi_model_targets)
-    alt_preds = dataset.untransform_preds(alt_preds, borzoi_model_targets)
+    
+    if untransform_old:
+        ref_preds = dataset.untransform_preds1(ref_preds, borzoi_model_targets, unscale=unscale, unclip=unclip)
+        alt_preds = dataset.untransform_preds1(alt_preds, borzoi_model_targets, unscale=unscale, unclip=unclip)
+    else:
+        ref_preds = dataset.untransform_preds(ref_preds, borzoi_model_targets, unscale=unscale, unclip=unclip)
+        alt_preds = dataset.untransform_preds(alt_preds, borzoi_model_targets, unscale=unscale, unclip=unclip)
     return ref_preds, alt_preds
 
+def SAD(ref_array, alt_array): #per target
+    return np.round(np.sum(np.abs(alt_array - ref_array), axis=0), 4)
 
 def l2Norm(ref_array, alt_array):
     return np.round(np.sqrt(np.sum(np.power(alt_array - ref_array, 2), 0)), 4)
